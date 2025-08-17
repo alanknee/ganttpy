@@ -97,7 +97,7 @@ def gantt(
     if order == 'listed':
         pass
     elif order == 'time':
-        tasks = sorted(tasks, key=lambda task: task.start.timestamp())
+        tasks = sorted(tasks, key=lambda task: task.start)
     else:
         raise ValueError("Order must be either 'listed' or 'time'")
 
