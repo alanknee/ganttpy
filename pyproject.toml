@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ganttpy"
+version = "0.0.1"
+authors = [
+  { name="Alan Knee", email="alan.knee@gmail.com" },
+]
+description = "Create Gantt charts in Python"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "matplotlib",
+    "pandas",
+]
+license = "GPL-3.0-or-later"
+license-files = [
+    "LICEN[CS]E*"
+]
+
+[project.urls]
+Homepage = "test"
+Issues = "test"
