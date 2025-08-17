@@ -56,7 +56,7 @@ class Task:
 
 def gantt(
     tasks,
-    order,
+    order='listed',
     begin_date=None, 
     figsize=(10, 3),
     figtitle=None, 
@@ -72,9 +72,9 @@ def gantt(
 
     Args:
         tasks (list[Task]): A list of Task instances defining individual tasks.
-        begin_date (str, optional): Beginning date of the time axis.
         order (str, optional): Task order, either 'listed' (default) for list order 
             or 'time' to order by start time.
+        begin_date (str, optional): Beginning date of the time axis.
         figsize (tuple[float], optional): Figure width and height.
         figtitle (str, optional): Figure title.
         date_freq (str, optional): Date tick frequency.
