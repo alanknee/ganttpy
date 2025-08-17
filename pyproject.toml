@@ -25,5 +25,5 @@ license-files = [
 ]
 
 [project.urls]
-Homepage = "test"
-Issues = "test"
+Homepage = "https://github.com/alanknee/ganttpy"
+Issues = "https://github.com/alanknee/ganttpy/issues"
