@@ -10,13 +10,13 @@ DEFAULT_COLOR = 'tab:blue'
 
 class Task:
     """Class representing a single task with some name, start date, 
-    end date (or duration in days), and a color to be used when plotting.
+    finish date (or duration in days), and a color to be used when plotting.
     """
     def __init__(
         self, 
         name,
         start,
-        end=None, 
+        finish=None, 
         duration=None, 
         color=DEFAULT_COLOR
     ):
@@ -28,21 +28,21 @@ class Task:
         Args:
             name (str): Task name.
             start (str): Task start date.
-            end (str, optional): Task end date.
+            finish (str, optional): Task finish date.
             duration (float, optional): Task duration in days.
             color (str, optional): Task color.  
         """
         self.name = name
 
         self.start = pd.to_datetime(start)
-        if end is not None:
-            self.end = pd.to_datetime(end)
-            self.duration = self.end - self.start
+        if finish is not None:
+            self.finish = pd.to_datetime(finish)
+            self.duration = self.finish - self.start
         elif duration is not None:
             self.duration = pd.Timedelta(f'{duration} days')
-            self.end = self.start + self.duration
+            self.finish = self.start + self.duration
         else:
-            raise ValueError('Must specify either task end date or duration (in days)')
+            raise ValueError('Must specify either task finish date or duration (in days)')
 
         self.color = color or DEFAULT_COLOR
 
@@ -50,7 +50,7 @@ class Task:
         cls = self.__class__.__name__
         return (
             f'{cls}(name={self.name}, start={self.start}, '
-            f'end={self.end}, duration={self.duration}, color={self.color})'
+            f'finish={self.finish}, duration={self.duration}, color={self.color})'
         )
 
 
@@ -58,10 +58,12 @@ def gantt(
     tasks,
     order='listed',
     begin_date=None, 
-    figsize=(10, 3),
+    figsize=(10, 4),
     figtitle=None, 
     date_freq='7D',
     date_format='%Y-%m-%d',
+    fontsize=10,
+    show_durations=False,
     fname=None, 
     return_fig=False
 ):
@@ -77,8 +79,10 @@ def gantt(
         begin_date (str, optional): Beginning date of the time axis.
         figsize (tuple[float], optional): Figure width and height.
         figtitle (str, optional): Figure title.
-        date_freq (str, optional): Date tick frequency.
-        date_format(str, optional): Date format.
+        date_freq (str, optional): Date label frequency.
+        date_format (str, optional): Date format.
+        fontsize (float, optional): Tick label fontsize.
+        show_durations (bool, optional): Show task durations in the plot.
         fname (str, optional): File path to save figure.
         return_fig (bool, optional): Return figure and axis objects. 
     """
@@ -103,33 +107,44 @@ def gantt(
         begin_date = min(task.start for task in tasks)
     else:
         begin_date = pd.to_datetime(begin_date)
-    end_date = max(task.end for task in tasks)
+    end_date = max(task.finish for task in tasks)
 
     # Set up figure and add task entries one by one
     fig, ax = plt.subplots(figsize=figsize)
     task_idxs = []
     task_labels = []
     for idx, task in enumerate(tasks):
+        days_to_start = (task.start - begin_date).days
         ax.barh(
             y=idx,
-            left=(task.start - begin_date).days,
+            left=days_to_start,
             width=task.duration.days,
             color=task.color
         )
         task_idxs.append(idx)
         task_labels.append(task.name)
 
+        # Print task durations
+        if show_durations:
+            ax.text(
+                x=days_to_start+0.5, 
+                y=idx, 
+                s=f'{int(task.duration.days)} days',
+                va='center',
+                fontsize=fontsize
+            )
+
     # Task labels
     ax.set_yticks(task_idxs)
-    ax.set_yticklabels(task_labels)
-    ax.set_title(figtitle)
+    ax.set_yticklabels(task_labels, fontsize=fontsize)
+    ax.set_title(figtitle, fontsize=fontsize)
 
     # Date labels
     ax.set_xlim(0, (end_date - begin_date).days)
     time_ticks = pd.date_range(start=begin_date, end=end_date, freq=date_freq)
     ax.set_xticks([(tt - begin_date).days for tt in time_ticks])
     time_labels = [tt.strftime(date_format) for tt in time_ticks]
-    ax.set_xticklabels(time_labels, rotation=45)
+    ax.set_xticklabels(time_labels, rotation=45, fontsize=fontsize)
 
     ax.grid(axis='x')
         
