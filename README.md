@@ -6,4 +6,4 @@ A simple Python tool for making Gantt charts.
 
 First define each of your tasks as a `ganttpy.Task` instance. Each `Task` should have a name, start and end date, and an associated plot colour. 
 
-To make the Gantt chart, simply run `ganttpy.gantt(tasks)` where `tasks` is a list of the individual `Task` objects you want plotted. 
+To make the Gantt chart, simply run `ganttpy.gantt(tasks)` where `tasks` is a list of the individual `Task` objects you want plotted. See the example in `example/example.ipynb`. 
