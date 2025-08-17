@@ -2,7 +2,7 @@
 
 A simple Python tool for making Gantt charts.
 
-# Instructions 
+### Instructions 
 
 First define each of your tasks as a `ganttpy.Task` instance. Each `Task` should have a name, start and end date, and an associated plot colour. 
 
