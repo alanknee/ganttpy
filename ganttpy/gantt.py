@@ -91,7 +91,7 @@ def gantt(
         raise ValueError('Task list is empty')
     for task in tasks:
         if not isinstance(task, Task):
-            raise ValueError(f'Entries are not all Task objects')
+            raise ValueError('Entries are not all Task objects')
 
     # Task order
     if order == 'listed':
