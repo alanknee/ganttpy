@@ -56,33 +56,37 @@ class Task:
 
 def gantt(
     tasks,
-    order='listed',
+    order='start',
     begin_date=None, 
     figsize=(10, 4),
     figtitle=None, 
-    date_freq='7D',
-    date_format='%Y-%m-%d',
+    date_freq='MS',
+    date_format='%b %Y',
+    date_rotation=0,
     fontsize=10,
     show_durations=False,
+    duration_textcolor='w',
     fname=None, 
     return_fig=False
 ):
     """Top-level function for making a Gantt chart. The input must be a list of Task
     objects, each containing a name, start and end dates, and optionally a colour
-    for plotting. By default, entries are arranged from bottom to top in the order in
-    which they appear in the input list.
+    for plotting. By default, entries are arranged from top to bottom in the order in
+    which they are listed.
 
     Args:
         tasks (list[Task]): A list of Task instances defining individual tasks.
-        order (str, optional): Task order, either 'listed' (default) for list order 
-            or 'time' to order by start time.
+        order (str, optional): Task order, either 'start' (default) to order by
+            start time or 'listed' to go by list order.
         begin_date (str, optional): Beginning date of the time axis.
         figsize (tuple[float], optional): Figure width and height.
         figtitle (str, optional): Figure title.
-        date_freq (str, optional): Date label frequency.
-        date_format (str, optional): Date format.
+        date_freq (str, optional): Date label frequency to pass to pandas.date_range().
+        date_format (str, optional): Date format to pass to strftime().
+        date_rotation (float, optional): Date label rotation.
         fontsize (float, optional): Tick label fontsize.
         show_durations (bool, optional): Show task durations in the plot.
+        duration_textcolor (str, optional): Color of duration text.
         fname (str, optional): File path to save figure.
         return_fig (bool, optional): Return figure and axis objects. 
     """
@@ -94,12 +98,12 @@ def gantt(
             raise ValueError('Entries are not all Task objects')
 
     # Task order
-    if order == 'listed':
-        pass
-    elif order == 'time':
+    if order == 'start':
         tasks = sorted(tasks, key=lambda task: task.start)
+    elif order == 'listed':
+        pass
     else:
-        raise ValueError("Order must be either 'listed' or 'time'")
+        raise ValueError("Order must be either 'start' or 'listed'")
 
     # If begin_date is given, use it as the beginning of the time axis, 
     # else use the earliest task start date
@@ -113,13 +117,16 @@ def gantt(
     fig, ax = plt.subplots(figsize=figsize)
     task_idxs = []
     task_labels = []
-    for idx, task in enumerate(tasks):
+    # Traverse list in reverse order to plot top to bottom
+    for idx, task in enumerate(reversed(tasks)):
         days_to_start = (task.start - begin_date).days
         ax.barh(
             y=idx,
             left=days_to_start,
             width=task.duration.days,
-            color=task.color
+            color=task.color,
+            edgecolor='k',
+            linewidth=1,
         )
         task_idxs.append(idx)
         task_labels.append(task.name)
@@ -131,6 +138,7 @@ def gantt(
                 y=idx, 
                 s=f'{int(task.duration.days)} days',
                 va='center',
+                color=duration_textcolor,
                 fontsize=fontsize
             )
 
@@ -144,9 +152,10 @@ def gantt(
     time_ticks = pd.date_range(start=begin_date, end=end_date, freq=date_freq)
     ax.set_xticks([(tt - begin_date).days for tt in time_ticks])
     time_labels = [tt.strftime(date_format) for tt in time_ticks]
-    ax.set_xticklabels(time_labels, rotation=45, fontsize=fontsize)
+    ax.set_xticklabels(time_labels, rotation=date_rotation, fontsize=fontsize)
 
     ax.grid(axis='x')
+    ax.set_axisbelow(True)
         
     if fname:
         fig.savefig(fname, dpi=400, bbox_inches='tight')
